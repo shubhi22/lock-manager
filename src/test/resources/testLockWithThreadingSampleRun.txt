@@ -1,0 +1,61 @@
+pool-1-thread-1 : ---------------------------------------- Attempting to acquire locks [A, B, C] for client 123 - START ------------------------
+pool-1-thread-2 : ---------------------------------------- Attempting to acquire locks [A, B, D] for client 234 - START ------------------------
+pool-1-thread-3 : ---------------------------------------- Attempting to acquire locks [A, B, M] for client 456 - START ------------------------
+pool-1-thread-2 :: Lock Acquired; ClientId= 234 , ItemId= A
+pool-1-thread-1 :: Lock is already held by others - waiting in queue - client=123 Item= A
+pool-1-thread-1 :: Lock Acquired; ClientId= 123 , ItemId= B
+pool-1-thread-1 :: Lock Acquired; ClientId= 123 , ItemId= C
+pool-1-thread-3 :: Lock is already held by others - waiting in queue - client=456 Item= A
+pool-1-thread-3 :: Lock is already held by others - waiting in queue - client=456 Item= B
+pool-1-thread-3 :: Lock Acquired; ClientId= 456 , ItemId= M
+pool-1-thread-1 : ---------------------------------------- Attempting to acquire locks [A, B, C] for client 123 - END ------------------------
+pool-1-thread-2 :: Lock is already held by others - waiting in queue - client=234 Item= B
+pool-1-thread-2 :: Lock Acquired; ClientId= 234 , ItemId= D
+pool-1-thread-3 : ---------------------------------------- Attempting to acquire locks [A, B, M] for client 456 - END ------------------------
+pool-1-thread-2 : ---------------------------------------- Attempting to acquire locks [A, B, D] for client 234 - END ------------------------
+pool-1-thread-3 : ---------------------------------------- Printing Waiting List for Requested Items - START ------------------------
+pool-1-thread-1 : ---------------------------------------- Printing Client States - START ------------------------
+pool-1-thread-3 :: Item=A ;Wait List Clients: [123, 456]
+pool-1-thread-3 :: Item=B ;Wait List Clients: [456, 234]
+pool-1-thread-3 :: Item=C ;Wait List Clients: []
+pool-1-thread-3 :: Item=D ;Wait List Clients: []
+pool-1-thread-3 :: Item=M ;Wait List Clients: []
+pool-1-thread-3 : ---------------------------------------- Printing Waiting List for Requested Items - END ------------------------
+pool-1-thread-3 : ---------------------------------------- Printing Client States - START ------------------------
+pool-1-thread-3 :: Client= 123 ;Locks: [B, C] WaitFor : [A]
+pool-1-thread-1 :: Client= 123 ;Locks: [B, C] WaitFor : [A]
+pool-1-thread-1 :: Client= 234 ;Locks: [A, D] WaitFor : [B]
+pool-1-thread-1 :: Client= 456 ;Locks: [M] WaitFor : [A, B]
+pool-1-thread-3 :: Client= 234 ;Locks: [A, D] WaitFor : [B]
+pool-1-thread-3 :: Client= 456 ;Locks: [M] WaitFor : [A, B]
+pool-1-thread-1 : ---------------------------------------- Printing Client States - END ------------------------
+pool-1-thread-3 : ---------------------------------------- Printing Client States - END ------------------------
+pool-1-thread-1 : ---------------------------------------- Printing Waiting List for Requested Items - START ------------------------
+pool-1-thread-1 :: Item=A ;Wait List Clients: [123, 456]
+pool-1-thread-1 :: Item=B ;Wait List Clients: [456, 234]
+pool-1-thread-1 :: Item=C ;Wait List Clients: []
+pool-1-thread-1 : ---------------------------------------- Printing Waiting List for Requested Items - END ------------------------
+pool-1-thread-1 : ---------------------------------------- Unlocking locks for client 123 - START ------------------------
+pool-1-thread-1 :: Lock on Item=B is now assigned to Client= 456 as part of cleanup.
+pool-1-thread-1 :: Delete the idle lock - lock=C
+pool-1-thread-1 : ---------------------------------------- Unlocking locks for client 123 - END ------------------------
+pool-1-thread-3 : ---------------------------------------- Unlocking locks for client 456 - START ------------------------
+pool-1-thread-3 :: Lock on Item=B is now assigned to Client= 234 as part of cleanup.
+pool-1-thread-3 :: Delete the idle lock - lock=M
+pool-1-thread-3 : ---------------------------------------- Unlocking locks for client 456 - END ------------------------
+pool-1-thread-2 : ---------------------------------------- Printing Client States - START ------------------------
+pool-1-thread-2 :: Client= 123 ;Locks: [] WaitFor : [A]
+pool-1-thread-2 :: Client= 234 ;Locks: [A, B, D] WaitFor : []
+pool-1-thread-2 :: Client= 456 ;Locks: [] WaitFor : []
+pool-1-thread-2 : ---------------------------------------- Printing Client States - END ------------------------
+pool-1-thread-2 : ---------------------------------------- Printing Waiting List for Requested Items - START ------------------------
+pool-1-thread-2 :: Item=A ;Wait List Clients: [123, 456]
+pool-1-thread-2 :: Item=B ;Wait List Clients: []
+pool-1-thread-2 :: Item=C ;Wait List Clients: []
+pool-1-thread-2 :: Item=D ;Wait List Clients: []
+pool-1-thread-2 : ---------------------------------------- Printing Waiting List for Requested Items - END ------------------------
+pool-1-thread-2 : ---------------------------------------- Unlocking locks for client 234 - START ------------------------
+pool-1-thread-2 :: Lock on Item=A is now assigned to Client= 123 as part of cleanup.
+pool-1-thread-2 :: Delete the idle lock - lock=B
+pool-1-thread-2 :: Delete the idle lock - lock=D
+pool-1-thread-2 : ---------------------------------------- Unlocking locks for client 234 - END ------------------------
