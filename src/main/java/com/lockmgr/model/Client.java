@@ -24,4 +24,10 @@ public class Client {
     public Set<String> getWaitForLock() {
         return waitForLock;
     }
+
+    public void abort() {
+        this.waitForLock.clear();
+        this.locks.clear();
+    }
+
 }

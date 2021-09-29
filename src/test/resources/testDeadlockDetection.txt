@@ -1,0 +1,17 @@
+pool-1-thread-2 : ---------------------------------------- Attempting to acquire locks [B, A] for client 1235 - START ------------------------
+pool-1-thread-1 : ---------------------------------------- Attempting to acquire locks [A, B] for client 1234 - START ------------------------
+pool-1-thread-2 :: Lock Acquired; ClientId= 1235 , ItemId= B
+pool-1-thread-1 :: Lock Acquired; ClientId= 1234 , ItemId= A
+pool-1-thread-2 :: Lock is already held by others - waiting in queue - client=1235 Item= A
+pool-1-thread-1 :: Lock is already held by others - waiting in queue - client=1234 Item= B
+pool-1-thread-2 : ---------------------------------------- Attempting to acquire locks [B, A] for client 1235 - END ------------------------
+
+pool-1-thread-1 :: Deadlock detected - Aborting current client transaction : 1234
+pool-1-thread-1 : ---------------------------------------- Unlocking locks for client 1234 - START ------------------------
+pool-1-thread-1 :: Lock on Item=A is now assigned to Client= 1235 as part of cleanup.
+pool-1-thread-1 : ---------------------------------------- Unlocking locks for client 1234 - END ------------------------
+pool-1-thread-1 : ---------------------------------------- Attempting to acquire locks [A, B] for client 1234 - END ------------------------
+main : ---------------------------------------- Printing Client States - START ------------------------
+main :: Client= 1235 ;Locks: [A, B] WaitFor : []
+main :: Client= 1234 ;Locks: [] WaitFor : []
+main : ---------------------------------------- Printing Client States - END ------------------------

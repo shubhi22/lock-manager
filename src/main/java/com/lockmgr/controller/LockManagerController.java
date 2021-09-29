@@ -1,8 +1,10 @@
 package com.lockmgr.controller;
 
+import com.lockmgr.exception.DeadlockException;
 import com.lockmgr.model.Client;
 
 import com.lockmgr.model.LockItem;
+import com.lockmgr.services.WaitForGraph;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,8 +13,9 @@ public class LockManagerController {
 
     //maintains clientId and client
     private final ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<String, Client>();
-    //maintains lockItemId and client
+    //maintains lockItemId and item
     private final ConcurrentHashMap<String, LockItem> locks = new ConcurrentHashMap<String, LockItem>();
+    private final WaitForGraph waitForGraph = new WaitForGraph();
 
     public void lock(List<String> lockKeys, String clientId) {
         System.out.println(String.format("%s : ---------------------------------------- Attempting to acquire locks %s for client %s - START ------------------------", Thread.currentThread().getName(), lockKeys, clientId));
@@ -38,6 +41,14 @@ public class LockManagerController {
                     lockItem.getWaitingList().add(client.getClientId());
                     client.getWaitForLock().add(lockKey);
                     System.out.println(Thread.currentThread().getName() + " :: Lock is already held by others - waiting in queue - client=" + client.getClientId() + " Item= " + lockItem.getName());
+                    waitForGraph.add(client.getClientId(), lockItem.getCurrentOwner());
+                    try {
+                        waitForGraph.detectDeadlock(client);
+                    } catch (DeadlockException e) {
+                        System.out.println(e.getMessage());
+                        unlock(client.getClientId());
+                    }
+
                 }
             }
         }
@@ -72,10 +83,11 @@ public class LockManagerController {
                     // delete the lock, return ok
                     locks.remove(lockItem);
                     client.getLocks().remove(lockKey);
-                    System.out.println(Thread.currentThread().getName() + " :: "+ String.format("Delete the idle lock - lock=%s", lockKey));
+                    System.out.println(Thread.currentThread().getName() + " :: " + String.format("Delete the idle lock - lock=%s", lockKey));
                 }
             }
         }
+        client.getWaitForLock().clear();
         System.out.println(String.format("%s : ---------------------------------------- Unlocking locks for client %s - END ------------------------", Thread.currentThread().getName(), clientId));
     }
 
@@ -93,7 +105,7 @@ public class LockManagerController {
 
     public void printClientState() {
         System.out.println(String.format("%s : ---------------------------------------- Printing Client States - START ------------------------", Thread.currentThread().getName()));
-        for(Client client : clients.values()) {
+        for (Client client : clients.values()) {
             System.out.println(Thread.currentThread().getName() + " :: Client= " + client.getClientId() + " ;Locks: " + client.getLocks() + " WaitFor : " + client.getWaitForLock());
         }
         System.out.println(String.format("%s : ---------------------------------------- Printing Client States - END ------------------------", Thread.currentThread().getName()));

@@ -12,7 +12,8 @@ public class LockManagerControllerTest {
 
     private LockManagerController controller = new LockManagerController();
 
-    @Test public void testLock() {
+    @Test
+    public void testLock() {
         controller.lock(Arrays.asList("A", "B", "C"), "123");
         controller.lock(Arrays.asList("A", "B", "D"), "234");
         controller.printClientState();
@@ -80,6 +81,18 @@ public class LockManagerControllerTest {
         service.submit(thread3);
 
         service.awaitTermination(10, TimeUnit.SECONDS);
+        service.shutdown();
+    }
+
+    @Test
+    public void testDeadlockDetection() throws InterruptedException {
+        ExecutorService service = Executors.newFixedThreadPool(3);
+        Runnable runnable1 = () -> {    controller.lock(Arrays.asList("A", "B"), "1234"); };
+        Runnable runnable2 = () -> {    controller.lock(Arrays.asList("B", "A"), "1235"); };
+        service.submit(runnable1);
+        service.submit(runnable2);
+        service.awaitTermination(5, TimeUnit.SECONDS);
+        controller.printClientState();
         service.shutdown();
     }
 }
