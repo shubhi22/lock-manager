@@ -15,7 +15,7 @@ public class LockManagerController {
     private final ConcurrentHashMap<String, LockItem> locks = new ConcurrentHashMap<String, LockItem>();
 
     public void lock(List<String> lockKeys, String clientId) {
-        System.out.println(String.format("---------------------------------------- Attempting to acquire locks %s for client %s - START ------------------------", lockKeys, clientId));
+        System.out.println(String.format("%s : ---------------------------------------- Attempting to acquire locks %s for client %s - START ------------------------", Thread.currentThread().getName(), lockKeys, clientId));
         Client client = null;
         if (!clients.containsKey(clientId)) {
             client = new Client(clientId);
@@ -33,20 +33,20 @@ public class LockManagerController {
                 if (lockItem.getCurrentOwner() == null) {
                     lockItem.setCurrentOwner(client.getClientId());
                     client.getLocks().add(lockKey);
-                    System.out.println("Lock Acquired; ClientId= " + clientId + " , ItemId= " + lockKey);
+                    System.out.println(Thread.currentThread().getName() + " :: Lock Acquired; ClientId= " + clientId + " , ItemId= " + lockKey);
                 } else { // lock is held by other, wait in the queue
                     lockItem.getWaitingList().add(client.getClientId());
                     client.getWaitForLock().add(lockKey);
-                    System.out.println("Lock is already held by others - waiting in queue - client=" + client.getClientId() + " Item= " + lockItem.getName());
+                    System.out.println(Thread.currentThread().getName() + " :: Lock is already held by others - waiting in queue - client=" + client.getClientId() + " Item= " + lockItem.getName());
                 }
             }
         }
-        System.out.println(String.format("---------------------------------------- Attempting to acquire locks %s for client %s - END ------------------------", lockKeys, clientId));
+        System.out.println(String.format("%s : ---------------------------------------- Attempting to acquire locks %s for client %s - END ------------------------", Thread.currentThread().getName(), lockKeys, clientId));
 
     }
 
     public void unlock(String clientId) {
-        System.out.println(String.format("---------------------------------------- Unlocking locks for client %s - START ------------------------", clientId));
+        System.out.println(String.format("%s : ---------------------------------------- Unlocking locks for client %s - START ------------------------", Thread.currentThread().getName(), clientId));
         Client client = clients.get(clientId);
         if (client.getLocks().isEmpty()) {
             throw new IllegalArgumentException("No lock exists for given client: " + clientId);
@@ -66,37 +66,37 @@ public class LockManagerController {
                     Client newOwnerClient = clients.get(newOwner);
                     newOwnerClient.getWaitForLock().clear();
                     newOwnerClient.getLocks().add(lockKey);
-                    System.out.println("Lock on Item=" + lockKey + " is now assigned to Client= " + lockItem.getCurrentOwner() + " as part of cleanup.");
+                    System.out.println(Thread.currentThread().getName() + " :: Lock on Item=" + lockKey + " is now assigned to Client= " + lockItem.getCurrentOwner() + " as part of cleanup.");
                 } else {
                     // no one is waiting
                     // delete the lock, return ok
                     locks.remove(lockItem);
                     client.getLocks().remove(lockKey);
-                    System.out.println(String.format("Delete the idle lock - lock=%s", lockKey));
+                    System.out.println(Thread.currentThread().getName() + " :: "+ String.format("Delete the idle lock - lock=%s", lockKey));
                 }
             }
         }
-        System.out.println(String.format("---------------------------------------- Unlocking locks for client %s - END ------------------------", clientId));
+        System.out.println(String.format("%s : ---------------------------------------- Unlocking locks for client %s - END ------------------------", Thread.currentThread().getName(), clientId));
     }
 
     public void getWaitingQueue(List<String> lockKeys) {
-        System.out.println("---------------------------------------- Printing Waiting List for Requested Items - START ------------------------");
+        System.out.println(String.format("%s : ---------------------------------------- Printing Waiting List for Requested Items - START ------------------------", Thread.currentThread().getName()));
         for (String lockKey : lockKeys) {
             if (!locks.containsKey(lockKey)) {
                 continue;
             }
             LockItem item = locks.get(lockKey);
-            System.out.println("Item=" + item.getName() + " ;Wait List Clients: " + item.getWaitingList().toString());
+            System.out.println(Thread.currentThread().getName() + " :: Item=" + item.getName() + " ;Wait List Clients: " + item.getWaitingList().toString());
         }
-        System.out.println("---------------------------------------- Printing Waiting List for Requested Items - END ------------------------");
+        System.out.println(String.format("%s : ---------------------------------------- Printing Waiting List for Requested Items - END ------------------------", Thread.currentThread().getName()));
     }
 
     public void printClientState() {
-        System.out.println("---------------------------------------- Printing Client States - START ------------------------");
+        System.out.println(String.format("%s : ---------------------------------------- Printing Client States - START ------------------------", Thread.currentThread().getName()));
         for(Client client : clients.values()) {
-            System.out.println("Client= " + client.getClientId() + " ;Locks: " + client.getLocks() + " WaitFor : " + client.getWaitForLock());
+            System.out.println(Thread.currentThread().getName() + " :: Client= " + client.getClientId() + " ;Locks: " + client.getLocks() + " WaitFor : " + client.getWaitForLock());
         }
-        System.out.println("---------------------------------------- Printing Client States - END ------------------------");
+        System.out.println(String.format("%s : ---------------------------------------- Printing Client States - END ------------------------", Thread.currentThread().getName()));
 
     }
 
